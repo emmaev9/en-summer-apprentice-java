@@ -18,7 +18,7 @@ public class TicketCategory {
     private Integer ticketCategoryID;
 
     @ManyToOne
-    @JoinColumn(name="eventID")
+    @JoinColumn(name="eventid")
     private Event event;
 
     @Column(name="description", nullable = false)

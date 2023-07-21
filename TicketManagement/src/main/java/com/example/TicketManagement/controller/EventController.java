@@ -23,10 +23,10 @@ public class EventController {
         return event.toString();
     }
 
-    @GetMapping("/api/events/{venueID}/{eventTypeID}")
+    @GetMapping("/api/events/{venueID}/{eventTypeName}")
     public ResponseEntity<?> getEventsByVenueIdandEventTypeId(@PathVariable("venueID") Integer venueID,
-                                                           @PathVariable("eventTypeID") Integer eventTypeID){
-        List<Event> event = eventService.findEventsByVenueIDandEventTypeID(venueID, eventTypeID);
+                                                           @PathVariable("eventTypeName") String eventTypeName){
+        List<Event> event = eventService.findEventsByVenueIDandEventTypeName(venueID, eventTypeName);
         return ResponseEntity.ok(event);
     }
 }

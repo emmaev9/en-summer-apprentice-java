@@ -37,7 +37,10 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public List<Event> findEventsByVenueIDandEventTypeID(Integer venueID, Integer eventTypeID) {
-        return eventRepository.findAllByVenue_VenueIDAndEventType_EventTypeID(venueID, eventTypeID);
+    public List<Event> findEventsByVenueIDandEventTypeName(Integer venueID, String eventTypeName) {
+        //return eventRepository.findAllByVenue_VenueIDAndEventType_EventTypeName(venueID, eventTypeName);
+        List<Event> events = eventRepository.findAllByVenue_VenueID(venueID);
+        List<Event> filteredEvents = events.stream().filter(a -> a.getEventType().getEventTypeName().equals(eventTypeName)).toList();
+        return  filteredEvents;
     }
 }

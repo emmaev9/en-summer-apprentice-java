@@ -1,11 +1,15 @@
 
 package com.example.TicketManagement.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Setter
@@ -26,6 +30,10 @@ public class Event {
     @ManyToOne
     @JoinColumn(name="eventTypeID")
     private EventType eventType;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JsonIgnoreProperties("event")
+    private List<TicketCategory> ticketCategories = new ArrayList<>();
 
     @Column(name="eventDescription")
     private String eventDescription;

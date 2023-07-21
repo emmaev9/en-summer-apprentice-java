@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -43,11 +44,8 @@ public class OrderService implements IOrderService {
         Date date = Date.from(now.atStartOfDay(defaultZoneId).toInstant());
         newOrder.setOrderAt(date);
 
-        TicketCategory ticketCategory = new TicketCategory();
-        Optional<TicketCategory> ticketCategoryOptional = ticketCategoryRepository.findById(orderDTO.getTicketCategoryID());
-        if(ticketCategoryOptional.isPresent()){
-            ticketCategory = ticketCategoryOptional.get();
-        }
+        TicketCategory ticketCategory = ticketCategoryRepository.findByTicketCategoryIDAndEvent_EventID(orderDTO.getTicketCategoryID(),orderDTO.getEventID());
+
         float totalPrice = ticketCategory.getPrice() * orderDTO.getNumberOfTickets();
         newOrder.setTotalPrice(totalPrice);
         newOrder.setTicketCategory(ticketCategory);
@@ -57,11 +55,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Order getOrder(Integer orderID) {
-        Optional<Order> orderOptional = orderRepository.findById(orderID);
-        if(orderOptional.isPresent()){
-            return orderOptional.get();
-        }
-        return null;
+    public List<Order> getOrdersByCustomerID(Integer customerID) {
+        List<Order> order = orderRepository.findAllByCustomer_CustomerID(customerID);
+        return order;
     }
 }

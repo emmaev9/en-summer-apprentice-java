@@ -15,6 +15,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
+    private Integer eventID;
     private Integer ticketCategoryID;
     private int numberOfTickets;
 }
