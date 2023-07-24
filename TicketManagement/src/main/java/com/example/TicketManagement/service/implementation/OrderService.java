@@ -1,6 +1,9 @@
 package com.example.TicketManagement.service.implementation;
 
 import com.example.TicketManagement.dto.OrderDTO;
+import com.example.TicketManagement.exception.CustomerNotFoundException;
+import com.example.TicketManagement.exception.InvalidFieldException;
+import com.example.TicketManagement.exception.NoOrdersFoundException;
 import com.example.TicketManagement.model.Customer;
 import com.example.TicketManagement.model.Order;
 import com.example.TicketManagement.model.TicketCategory;
@@ -14,7 +17,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class OrderService implements IOrderService {
@@ -30,12 +32,11 @@ public class OrderService implements IOrderService {
 
     @Override
     public void saveOrder(OrderDTO orderDTO, Integer customerID) {
+
+        Customer currentCustomer = customerRepository.findById(customerID)
+                .orElseThrow(() ->new CustomerNotFoundException("Customer with ID " + customerID + " not found."));
+
         Order newOrder = new Order();
-        Customer currentCustomer = new Customer();
-        Optional<Customer> eventOptional = customerRepository.findById(customerID);
-        if(eventOptional.isPresent()){
-            currentCustomer = eventOptional.get();
-        }
         newOrder.setCustomer(currentCustomer);
         newOrder.setNumberOfTickets(orderDTO.getNumberOfTickets());
 
@@ -46,17 +47,26 @@ public class OrderService implements IOrderService {
 
         TicketCategory ticketCategory = ticketCategoryRepository.findByTicketCategoryIDAndEvent_EventID(orderDTO.getTicketCategoryID(),orderDTO.getEventID());
 
+        if(ticketCategory == null){
+            throw new InvalidFieldException("eventID or ticketCategoryID does not exist");
+        }
+        if(orderDTO.getNumberOfTickets() <= 0){
+            throw new InvalidFieldException("Number of tickets must be greater than zero.");
+        }
+
         float totalPrice = ticketCategory.getPrice() * orderDTO.getNumberOfTickets();
         newOrder.setTotalPrice(totalPrice);
         newOrder.setTicketCategory(ticketCategory);
 
         orderRepository.save(newOrder);
-        System.out.println("Order successfully saved! :D");
     }
 
     @Override
     public List<Order> getOrdersByCustomerID(Integer customerID) {
         List<Order> order = orderRepository.findAllByCustomer_CustomerID(customerID);
+        if(order.isEmpty()){
+            throw new NoOrdersFoundException("No orders found for customer with ID: "+ customerID);
+        }
         return order;
     }
 }
