@@ -1,5 +1,7 @@
 package com.example.TicketManagement.service.implementation;
 
+import com.example.TicketManagement.exception.EventNotFoundException;
+import com.example.TicketManagement.exception.NoEventsFoundException;
 import com.example.TicketManagement.model.Customer;
 import com.example.TicketManagement.model.Event;
 import com.example.TicketManagement.repository.EventRepository;
@@ -23,24 +25,27 @@ public class EventService implements IEventService {
     }
 
     @Override
-    public Event findEventById(Integer id) {
-        Optional<Event> eventOptional = eventRepository.findById(id);
-        if(eventOptional.isPresent()){
-            return eventOptional.get();
-        }
-        return null;
+    public Event findEventById(Integer id){
+        return eventRepository.findById(id)
+                .orElseThrow(() ->new EventNotFoundException("Event with ID " + id + " not found."));
     }
 
     @Override
     public List<Event> findAllEvents() {
-        return eventRepository.findAll();
+        List<Event> events = eventRepository.findAll();
+        if(events.isEmpty()){
+            throw new NoEventsFoundException("No event found");
+        }
+        return events;
     }
 
     @Override
     public List<Event> findEventsByVenueIDandEventTypeName(Integer venueID, String eventTypeName) {
-        //return eventRepository.findAllByVenue_VenueIDAndEventType_EventTypeName(venueID, eventTypeName);
         List<Event> events = eventRepository.findAllByVenue_VenueID(venueID);
         List<Event> filteredEvents = events.stream().filter(a -> a.getEventType().getEventTypeName().equals(eventTypeName)).toList();
+        if(filteredEvents.isEmpty()){
+            throw new NoEventsFoundException("No event found");
+        }
         return  filteredEvents;
     }
 }
